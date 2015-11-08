@@ -67,21 +67,64 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
     return RPC_RETURN_SUCCESS;
   } else if (cmd_id == 0x13) {
     /* submitValue() */
+    int8_t i8;
     uint8_t u8;
+    int16_t i16;
     uint16_t u16;
-    Serial.println("value");
+    int32_t i32;
+    uint32_t u32;
+    float f;
+
+    if(this->status == 2) {
+      this->status = 3;
+    } else {
+      this->cache->print(",");
+    }
+
     this->cache->print("[");
+    // sensor id
     u8 = this->_rpc->getParam_uint8();
-    Serial.println(u8);
     this->cache->print(u8);
     this->cache->print(",");
+    // sensor type
     u16 = this->_rpc->getParam_uint16();
-    Serial.println(u16);
     this->cache->print(u16);
     this->cache->print(",");
+    // value type
+    u8 = this->_rpc->getParam_uint8();
+    this->cache->print(u8);
+    this->cache->print(",");
+    // value
+    // - read value type
+    u8 = this->_rpc->getParam_uint8();
+    // - read value
+    if(u8 == RPC_INT8) {
+      i8 = this->_rpc->getParam_int8();
+      this->cache->print(i8);
+    } else if(u8 == RPC_UINT8) {
+      u8 = this->_rpc->getParam_uint8();
+      this->cache->print(u8);
+    } else if(u8 == RPC_INT16) {
+      i16 = this->_rpc->getParam_int16();
+      this->cache->print(i16);
+    } else if(u8 == RPC_UINT16) {
+      u16 = this->_rpc->getParam_uint16();
+      this->cache->print(u16);
+    } else if(u8 == RPC_INT32) {
+      i32 = this->_rpc->getParam_int32();
+      this->cache->print(i32);
+    } else if(u8 == RPC_UINT32) {
+      u32 = this->_rpc->getParam_uint32();
+      this->cache->print(u32);
+    } else if(u8 == RPC_FLOAT) {
+      f = this->_rpc->getParam_float();
+      this->cache->print(f);
+    } else {
+      // value type not supported
+      this->cache->print("\"n/a\"");
+    }
     this->cache->print("]");
     return RPC_RETURN_SUCCESS;
   }
-  // this->_rpc->writeResult_uint8(3);
   return RPC_RETURN_COMMAND_NOT_FOUND;
 }
