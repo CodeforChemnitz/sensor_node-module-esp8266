@@ -10,14 +10,12 @@
  #error "Use Arduino IDE >= 1.0"
 #endif
 
-class SensorNodeESP8266 : public ArduRPCHandler
+class ArduRPC_SensorNode : public ArduRPCHandler
 {
   public:
-    SensorNodeESP8266();
-    SensorNodeESP8266(ArduRPC &, char *);
+    ArduRPC_SensorNode(ArduRPC &rpc, char *name);
     uint8_t
       call(uint8_t);
-
 };
 
 #endif

@@ -8,20 +8,12 @@
 
 ESP8266WebServer server(80);
 
-#define RPC_NUM_HANDLERS 20
-#define RPC_NUM_FUNCTIONS 0
-
 // the serial port, it's also possible to use software serial
 #define RPC_SERIAL_PORT Serial
 #define RPC_SERIAL_BAUD 9600
 
-// Create a new rpc instance
-ArduRPC rpc = ArduRPC(RPC_NUM_HANDLERS, RPC_NUM_FUNCTIONS);
-// Create a new instance of the ArduRPC serial protocol handler
-ArduRPC_Serial rpc_serial = ArduRPC_Serial(RPC_SERIAL_PORT, rpc);
-
-// Create a new ArduRPC wrapper
-SensorNodeESP8266 SensorNodeESP8288_Wrapper();
+#define RPC_NUM_HANDLERS  2
+#define RPC_NUM_FUNCTIONS 0
 
 #define NODE_MODE_ACTIVE 0
 #define NODE_MODE_CONFIG 1
@@ -355,7 +347,28 @@ bool waitWiFiClientConnected(uint8_t connect_timeout)
   return false;
 }
 
+ArduRPC *rpc;
+ArduRPC_Serial *rpc_serial;
+ArduRPC_SensorNode *rpc_sensor_node;
+
 void setup() {
+  pinMode(16, INPUT);
+  pinMode(0, INPUT);
+  pinMode(2, INPUT);
+  uint8_t pin_mode;
+
+  while(digitalRead(0) == HIGH) {
+    delay(50);
+  }
+
+  pin_mode = digitalRead(2); 
+
+  node_mode = NODE_MODE_ACTIVE;
+
+  if(pin_mode == HIGH) {
+    node_mode = NODE_MODE_CONFIG;
+  }
+
   // Initialize the serial port
   RPC_SERIAL_PORT.begin(RPC_SERIAL_BAUD);
 
@@ -363,6 +376,10 @@ void setup() {
 
   if(node_mode == NODE_MODE_ACTIVE) {
     WiFi.mode(WIFI_STA);
+    //connectWiFiClient(20);
+    rpc = new ArduRPC(RPC_NUM_HANDLERS, RPC_NUM_FUNCTIONS);
+    rpc_serial = new ArduRPC_Serial(RPC_SERIAL_PORT, *rpc);
+    rpc_sensor_node = new ArduRPC_SensorNode(*rpc, "wifi");
   } else if (node_mode == NODE_MODE_CONFIG) {
     initConfig();
     WiFi.mode(WIFI_AP_STA);
@@ -380,19 +397,60 @@ void setup() {
 
     server.begin();
     Serial.println("HTTP server started"); 
+    Serial.print("Local: ");
+    Serial.println(WiFi.localIP());
+    Serial.print("AP: ");
+    Serial.println(WiFi.softAPIP());
   }
-
-
-  Serial.print("Local: ");
-  Serial.println(WiFi.localIP());
-  Serial.print("AP: ");
-  Serial.println(WiFi.softAPIP());
 }
+
+/*
+void submitData()
+{
+  uint8_t length;
+  uint8_t pos;
+  uint8_t num_values;
+  uint8_t i;
+  uint8_t value_type;
+  char uuid[33];
+  uint8_t *data;
+
+  length = sensor_node.getUUID(uuid, 32);
+  
+  num_values = sensor_node.getValueCount();
+  Serial.print("[");
+  for(i = 0; i < num_values; i++) {
+    if(i != 0) {
+      Serial.print(',');
+    }
+    length = sensor_node.getValue(i, &data);
+    pos = 0;
+    while(pos < length) {
+      if(pos != 0) {
+        Serial.print(',');
+      }
+      value_type = rpc_read_uint8(&data[pos]);
+      pos++;
+      if(value_type == 0x01) {
+        Serial.print(rpc_read_int8(&data[pos]));
+        pos++;
+      } else if(value_type == 0x02) {
+        Serial.print(rpc_read_uint8(&data[pos]));
+        pos++;
+      } else {
+        Serial.print("error");
+      }
+    }
+  }
+  Serial.println("]");
+}
+*/
 
 void loop() {
   if (node_mode == NODE_MODE_ACTIVE) {
-    // Process data
-    rpc_serial.loop();
+    while(1) {
+      rpc_serial->readData();
+    }
   } else if(node_mode == NODE_MODE_CONFIG) {
     server.handleClient();
   }

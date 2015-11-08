@@ -1,26 +1,25 @@
 #include "sensor_node.h"
 #include <ESP8266WiFi.h>
 
-SensorNodeESP8266::SensorNodeESP8266() : ArduRPCHandler()
+
+ArduRPC_SensorNode::ArduRPC_SensorNode(ArduRPC &rpc, char *name) : ArduRPCHandler()
 {
-  this->type = 0xff10;
+  this->type = 0x9999;
+  this->registerSelf(rpc, name, (void *)this);
 }
 
-SensorNodeESP8266::SensorNodeESP8266(ArduRPC &rpc, char *name) : ArduRPCHandler()
+uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
 {
-  this->type = 0xff10;
-  //this->registerSelf(rpc, name);
-}
-
-ICACHE_FLASH_ATTR uint8_t SensorNodeESP8266::call(uint8_t cmd_id)
-{
-  uint8_t u8_tmp1;
-  uint16_t u16_tmp1;
-  uint32_t u32_tmp1;
-
-  if(cmd_id == 0x11) {
-  } else {
-    return RPC_RETURN_COMMAND_NOT_FOUND;
+  if (cmd_id == 0x10) {
+    /* start() */
+    return RPC_RETURN_SUCCESS;
+  } else if (cmd_id == 0x11) {
+    /* finish() */
+  } else if (cmd_id == 0x12) {
+    /* getStatus() */
+  } else if (cmd_id == 0x13) {
+    /* submitValue() */
   }
-  return RPC_RETURN_SUCCESS;
+  // this->_rpc->writeResult_uint8(3);
+  return RPC_RETURN_COMMAND_NOT_FOUND;
 }
