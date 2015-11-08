@@ -189,6 +189,54 @@ void handleSSID()
 
 }
 
+void handleScanSSID()
+{
+  String data;
+  String query;
+  String ssid;
+  uint8_t first = 1;
+  if (server.method() == HTTP_GET) {
+    query = server.arg("q");
+    int n = WiFi.scanNetworks();
+    if (n == 0) {
+      server.send(404, "text/plain", "[]");
+    } else {
+      data = "[";
+      for (int i = 0; i < n; ++i) {
+        ssid = WiFi.SSID(i);
+        if(query.length() > 0 and !ssid.startsWith(query)) {
+          continue;
+        }
+        if(first == 0) {
+          data += ",";
+        }
+        first = 0;
+        data += "{\"ssid\"=\"";
+        data += ssid;
+        //data += "\",rssi=\"";
+        //data += WiFi.RSSI(i);
+        data += "\",crypt=\"";
+        if(WiFi.encryptionType(i) == ENC_TYPE_NONE) {
+          data += "none";
+        } else if (WiFi.encryptionType(i) == ENC_TYPE_WEP) {
+          data += "wep";
+        } else if (WiFi.encryptionType(i) == ENC_TYPE_TKIP) {
+          data += "wpa";
+        } else if (WiFi.encryptionType(i) == ENC_TYPE_CCMP) {
+          data += "wpa2";
+        }
+        data += "\"}";
+        delay(10);
+        if(data.length() > 512) {
+          break;
+        }
+      }
+      data += "]";
+      server.send(200, "text/plain", data);
+    }
+  }
+}
+
 void handleNotFound(){
   String message = "File Not Found\n\n";
   message += "URI: ";
@@ -391,6 +439,7 @@ void setup() {
     server.on("/action/register", handleRegister);
     server.on("/action/restart", handleRestart);
     server.on("/action/save", handleSave);
+    server.on("/action/wifi/ssids", handleScanSSID);
     server.on("/config/wifi/sta/ssid", handleSSID);
     server.on("/config/wifi/sta/password", handlePassword);
     server.onNotFound(handleNotFound);
