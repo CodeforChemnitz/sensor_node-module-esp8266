@@ -404,48 +404,6 @@ void setup() {
   }
 }
 
-/*
-void submitData()
-{
-  uint8_t length;
-  uint8_t pos;
-  uint8_t num_values;
-  uint8_t i;
-  uint8_t value_type;
-  char uuid[33];
-  uint8_t *data;
-
-  length = sensor_node.getUUID(uuid, 32);
-  
-  num_values = sensor_node.getValueCount();
-  Serial.print("[");
-  for(i = 0; i < num_values; i++) {
-    if(i != 0) {
-      Serial.print(',');
-    }
-    length = sensor_node.getValue(i, &data);
-    pos = 0;
-    while(pos < length) {
-      if(pos != 0) {
-        Serial.print(',');
-      }
-      value_type = rpc_read_uint8(&data[pos]);
-      pos++;
-      if(value_type == 0x01) {
-        Serial.print(rpc_read_int8(&data[pos]));
-        pos++;
-      } else if(value_type == 0x02) {
-        Serial.print(rpc_read_uint8(&data[pos]));
-        pos++;
-      } else {
-        Serial.print("error");
-      }
-    }
-  }
-  Serial.println("]");
-}
-*/
-
 void loop() {
   if (node_mode == NODE_MODE_ACTIVE) {
     while(1) {
@@ -455,3 +413,4 @@ void loop() {
     server.handleClient();
   }
 }
+
