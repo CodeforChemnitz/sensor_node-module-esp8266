@@ -38,32 +38,31 @@ class ArduRPC_SensorNode : public ArduRPCHandler
   public:
     ArduRPC_SensorNode(ArduRPC &rpc, char *name);
     uint8_t
-      call(uint8_t);
+      ICACHE_FLASH_ATTR call(uint8_t);
   private:
     uint8_t status;
     DataString *cache;
 };
 
-void handleNotFound();
-void handlePassword();
-void handleRegister();
-void handleRestart();
-void handleRoot();
-void handleSave();
-void handleScanSSID();
-void handleSSID();
+void ICACHE_FLASH_ATTR handleNotFound();
+void ICACHE_FLASH_ATTR handlePassword();
+void ICACHE_FLASH_ATTR handleRegister();
+void ICACHE_FLASH_ATTR handleRestart();
+void ICACHE_FLASH_ATTR handleRoot();
+void ICACHE_FLASH_ATTR handleSave();
+void ICACHE_FLASH_ATTR handleScanSSID();
+void ICACHE_FLASH_ATTR handleSSID();
 
 extern ESP8266WebServer *server;
 extern WiFiClient *client;
 
-bool waitWiFiClientConnected(uint8_t);
-bool waitWiFiClientConnected(uint8_t connect_timeout);
-bool connectWiFiClient(uint8_t connect_timeout);
-uint8_t setWiFiSSID(char *ssid, uint8_t len);
-uint8_t setWiFiPassword(char *password, uint8_t len);
-uint8_t getWiFiPassword(char *password, uint8_t max_len);
-uint8_t getNodeConfigStatus();
-uint8_t getWiFiSSID(char *ssid, uint8_t max_len);
-void initConfig();
+bool ICACHE_FLASH_ATTR waitWiFiClientConnected(uint8_t);
+bool ICACHE_FLASH_ATTR connectWiFiClient(uint8_t connect_timeout);
+uint8_t ICACHE_FLASH_ATTR setWiFiSSID(char *ssid, uint8_t len);
+uint8_t ICACHE_FLASH_ATTR setWiFiPassword(char *password, uint8_t len);
+uint8_t ICACHE_FLASH_ATTR getWiFiPassword(char *password, uint8_t max_len);
+uint8_t ICACHE_FLASH_ATTR getNodeConfigStatus();
+uint8_t ICACHE_FLASH_ATTR getWiFiSSID(char *ssid, uint8_t max_len);
+void ICACHE_FLASH_ATTR initConfig();
 
 #endif
