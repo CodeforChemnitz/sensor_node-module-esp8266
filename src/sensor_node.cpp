@@ -1,130 +1,153 @@
 #include "sensor_node.h"
-#include <ESP8266WiFi.h>
 
-
-DataString::DataString(uint16_t max_length)
+bool connectWiFiClient(uint8_t connect_timeout=0)
 {
-  this->max_length = max_length;
-  this->data = (uint8_t *)malloc(sizeof(uint8_t) * max_length);
-  this->length = 0;
-}
+  char ssid[65];
+  char password[65];
 
-void DataString::reset()
-{
-  this->length = 0;
-}
+  uint8_t len;
 
-size_t DataString::write(uint8_t c)
-{
-  this->data[this->length] = c;
-  this->length++;
-}
-
-ArduRPC_SensorNode::ArduRPC_SensorNode(ArduRPC &rpc, char *name) : ArduRPCHandler()
-{
-  this->type = 0x9999;
-  this->registerSelf(rpc, name, (void *)this);
-  this->status = 0;
-  this->cache = new DataString(1024);
-}
-
-uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
-{
-  uint16_t i;
-
-  if (cmd_id == 0x10) {
-    /* start() */
-    // ToDo: use connect wifi function and status = 1
-    //connectWiFiClient(1);
-    this->status = 2;
-    this->cache->reset();
-    this->cache->print("[");
-    return RPC_RETURN_SUCCESS;
-  } else if (cmd_id == 0x11) {
-    this->cache->print("]");
-    /* finish() */
-    // ToDo: change to client, only for debugging
-    //if(client.connect("", 80)) {
-      Serial.println("POST /sensor/data");
-      Serial.println("Host: host");
-      Serial.println("Connection: close");
-      Serial.print("Content-Length: ");
-      Serial.println(this->cache->length);
-      Serial.println();
-      for(i = 0; i < this->cache->length; i++) {
-        Serial.print((char)this->cache->data[i]);
-      }
-    //}
-    return RPC_RETURN_SUCCESS;
-  } else if (cmd_id == 0x12) {
-    /* getStatus() */
-    if(this->status == 1) {
-      if(WiFi.status() == WL_CONNECTED) {
-        this->status = 2;
-      }
-    }
-    this->_rpc->writeResult_uint8(this->status);
-    return RPC_RETURN_SUCCESS;
-  } else if (cmd_id == 0x13) {
-    /* submitValue() */
-    int8_t i8;
-    uint8_t u8;
-    int16_t i16;
-    uint16_t u16;
-    int32_t i32;
-    uint32_t u32;
-    float f;
-
-    if(this->status == 2) {
-      this->status = 3;
-    } else {
-      this->cache->print(",");
-    }
-
-    this->cache->print("[");
-    // sensor id
-    u8 = this->_rpc->getParam_uint8();
-    this->cache->print(u8);
-    this->cache->print(",");
-    // sensor type
-    u16 = this->_rpc->getParam_uint16();
-    this->cache->print(u16);
-    this->cache->print(",");
-    // value type
-    u8 = this->_rpc->getParam_uint8();
-    this->cache->print(u8);
-    this->cache->print(",");
-    // value
-    // - read value type
-    u8 = this->_rpc->getParam_uint8();
-    // - read value
-    if(u8 == RPC_INT8) {
-      i8 = this->_rpc->getParam_int8();
-      this->cache->print(i8);
-    } else if(u8 == RPC_UINT8) {
-      u8 = this->_rpc->getParam_uint8();
-      this->cache->print(u8);
-    } else if(u8 == RPC_INT16) {
-      i16 = this->_rpc->getParam_int16();
-      this->cache->print(i16);
-    } else if(u8 == RPC_UINT16) {
-      u16 = this->_rpc->getParam_uint16();
-      this->cache->print(u16);
-    } else if(u8 == RPC_INT32) {
-      i32 = this->_rpc->getParam_int32();
-      this->cache->print(i32);
-    } else if(u8 == RPC_UINT32) {
-      u32 = this->_rpc->getParam_uint32();
-      this->cache->print(u32);
-    } else if(u8 == RPC_FLOAT) {
-      f = this->_rpc->getParam_float();
-      this->cache->print(f);
-    } else {
-      // value type not supported
-      this->cache->print("\"n/a\"");
-    }
-    this->cache->print("]");
-    return RPC_RETURN_SUCCESS;
+  len = getWiFiSSID(&ssid[0], 64);
+  ssid[64] = '\0';
+  Serial.println(ssid);
+  if(len == 0) {
+    Serial.println("exit");
+    return false;
   }
-  return RPC_RETURN_COMMAND_NOT_FOUND;
+
+  len = getWiFiPassword(&password[0], 64);
+  password[64] = '\0';
+  Serial.println(password);
+  Serial.println(len);
+  if(len == 0) {
+    WiFi.begin(ssid);
+  } else {
+    WiFi.begin(ssid, password);
+  }
+
+  if(connect_timeout == 0) {
+    return true;
+  } else {
+    return waitWiFiClientConnected(connect_timeout);
+  }
+}
+
+bool waitWiFiClientConnected(uint8_t connect_timeout)
+{
+  uint8_t i;
+
+  for(i = 0; i < connect_timeout * 2; i++) {  
+    if(WiFi.status() == WL_CONNECTED) {
+      Serial.println("Connected");
+      return true;
+    }
+    Serial.println("Waiting ...");
+    delay(500);
+  }
+  return false;
+}
+
+uint8_t setWiFiSSID(char *ssid, uint8_t len)
+{
+  uint8_t i;
+
+  EEPROM.write(NODE_EEPROM_SSID_OFFSET, len);
+  for(i = 0; i < len; i++) {
+    EEPROM.write(NODE_EEPROM_SSID_OFFSET + i + 1, ssid[i]);
+  }
+
+
+  return len;
+}
+
+uint8_t setWiFiPassword(char *password, uint8_t len)
+{
+  uint8_t i;
+
+  EEPROM.write(NODE_EEPROM_PASSWORD_OFFSET, len);
+  for(i = 0; i < len; i++) {
+    EEPROM.write(NODE_EEPROM_PASSWORD_OFFSET + i + 1, password[i]);
+  }
+
+  return len;
+}
+
+uint8_t getWiFiPassword(char *password, uint8_t max_len)
+{
+  uint8_t i, len;
+  char c;
+
+  if(!getNodeConfigStatus()) {
+    return 0;
+  }
+
+  len = EEPROM.read(NODE_EEPROM_PASSWORD_OFFSET);
+  if(len > 64 || len == 0) {
+    return 0;
+  }
+
+  if(len > max_len) {
+    len = max_len;
+  }
+
+  for(i = 0; i < len; i++) {
+    password[i] = EEPROM.read(NODE_EEPROM_PASSWORD_OFFSET + i + 1);
+  }
+
+  if(len < max_len) {
+    password[len] = '\0';
+  }
+
+  return len;
+}
+
+uint8_t getNodeConfigStatus()
+{
+  uint8_t status;
+  status = EEPROM.read(0);
+
+  if(status != 0x33) {
+    return 0;
+  }
+  return 1;
+}
+
+uint8_t getWiFiSSID(char *ssid, uint8_t max_len)
+{
+  uint8_t i, len;
+  char c;
+
+  if(!getNodeConfigStatus()) {
+    return 0;
+  }
+
+  len = EEPROM.read(NODE_EEPROM_SSID_OFFSET);
+  if(len > 64 || len == 0) {
+    return 0;
+  }
+
+  if(len > max_len) {
+    len = max_len;
+  }
+
+  for(i = 0; i < len; i++) {
+    ssid[i] = EEPROM.read(NODE_EEPROM_SSID_OFFSET + i + 1);
+  }
+
+  if(len < max_len) {
+    ssid[len] = '\0';
+  }
+
+  return len;
+}
+
+void initConfig()
+{
+  if(getNodeConfigStatus()) {
+    return;
+  }
+  EEPROM.write(NODE_EEPROM_SSID_OFFSET, 0x00);
+  EEPROM.write(NODE_EEPROM_PASSWORD_OFFSET, 0x00);
+  EEPROM.write(0, 0x33);
+  EEPROM.commit();
 }
