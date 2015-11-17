@@ -54,7 +54,7 @@ void setup() {
 
     initConfig();
     WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP("SensorNode");
+    WiFi.softAP("SensorNode", "SensorNode");
     WiFi.softAPConfig(IPAddress(192, 168, 255, 254), IPAddress(), IPAddress(255, 255, 255, 0));
     connectWiFiClient(20);
 
