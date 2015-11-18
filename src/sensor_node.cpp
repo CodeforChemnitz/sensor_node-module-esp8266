@@ -47,29 +47,28 @@ bool waitWiFiClientConnected(uint8_t connect_timeout)
   return false;
 }
 
-uint8_t setWiFiSSID(char *ssid, uint8_t len)
+uint8_t writeEEPROM_string(uint16_t eeprom_addr, char *data, uint8_t len)
 {
   uint8_t i;
 
-  EEPROM.write(NODE_EEPROM_SSID_OFFSET, len);
+  EEPROM.write(eeprom_addr, len);
+  eeprom_addr++;
   for(i = 0; i < len; i++) {
-    EEPROM.write(NODE_EEPROM_SSID_OFFSET + i + 1, ssid[i]);
+    EEPROM.write(eeprom_addr, data[i]);
+    eeprom_addr++;
   }
-
 
   return len;
 }
 
+uint8_t setWiFiSSID(char *ssid, uint8_t len)
+{
+  return writeEEPROM_string(NODE_EEPROM_SSID_OFFSET, ssid, len);
+}
+
 uint8_t setWiFiPassword(char *password, uint8_t len)
 {
-  uint8_t i;
-
-  EEPROM.write(NODE_EEPROM_PASSWORD_OFFSET, len);
-  for(i = 0; i < len; i++) {
-    EEPROM.write(NODE_EEPROM_PASSWORD_OFFSET + i + 1, password[i]);
-  }
-
-  return len;
+  return writeEEPROM_string(NODE_EEPROM_PASSWORD_OFFSET, password, len);
 }
 
 uint8_t getWiFiPassword(char *password, uint8_t max_len)
