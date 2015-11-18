@@ -1,3 +1,4 @@
+#include <ArduinoJson.h>
 #include "sensor_node.h"
 
 void handleAPIHostname()
@@ -88,70 +89,80 @@ void handlePassword()
 
 void handleRegister()
 {
+  WiFiClient *client;
+  char hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH + 1];
+  StaticJsonBuffer<200> jsonBuffer;
+  char buffer[201];
+  uint8_t i;
 
   String email = server->arg("email");
   String name = server->arg("name");
-
-  // ToDo: read from eeprom
-  char host[] = "192.168.0.1";
-  int httpPort = 80;
 
   if(email.length() == 0) {
     server->send(400, "text/plain", "E-Mail not given");
     return;
   }
 
-  String message = "";
-  message += "email:" + email + "\r\n";
-  if (name.length()) {
-    message += "name:" + name + "\r\n";
-  }
+  client = connectSensorAPI();
 
-  if (!client->connect(host, httpPort)) {
+  if (client == NULL) {
     Serial.println("connection failed");
     server->send(500, "text/plain", "Unable to connect to remote server");
     return;
   }
-  
+
+  JsonObject& root = jsonBuffer.createObject();
+  root["email"] = email;
+  root["name"] = name;
+
+  root.printTo(buffer, 200);
+
+  getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
+
   client->print("POST /sensors HTTP/1.1\r\n");
   client->print("Host: ");
-  client->print(host);
+  client->print(hostname);
   client->print("\r\n");
   client->print("X-Sensor-Version: 1\r\n");
   client->print("Content-Type: text/plain\r\n");
   client->print("Content-Length: ");
-  client->print(message.length());
+  client->print(strlen(buffer));
   client->print("\r\n");
   client->print("\r\n");
-  client->print(message);
+  client->print(buffer);
 
   String sensor_id = "";
   String sensor_key = "";
 
   unsigned long start_time = millis();
+  i = 0;
+  char c;
   while(1) {
     if(client->available()) {
-      String line = client->readStringUntil('\n');
-      if(line.startsWith("apikey:")) {
-        sensor_key = line.substring(7);
+      c = client->read();
+      buffer[i] = c;
+      i++;
+      if(c == '}') {
+        break;
       }
-      if(line.startsWith("id:")) {
-        sensor_id = line.substring(3);
-      }
-      Serial.println(line);
     } else {
       delay(100);
     }
-    if(sensor_id.length() > 0 && sensor_key.length() > 0) {
-      break;
+    if(millis() - start_time > 5000) {
+      server->send(400, "text/plain", "API Timeout");
     }
-    if(millis() - start_time > 10000) {
-        break;
+    if(i >= 200) {
+      server->send(400, "text/plain", "Memory Limit");
     }
   }
   client->stop();
-  Serial.println(sensor_id);
-  Serial.println(sensor_key);
+  JsonObject& root2 = jsonBuffer.parseObject(buffer);
+  const char* uuid = root2["uuid"];
+  const char* key = root2["key"];
+  Serial.println(uuid);
+  Serial.println(key);
+  // ToDo: RPC call
+
   server->send(200, "text/plain", "Registred");
 }
 

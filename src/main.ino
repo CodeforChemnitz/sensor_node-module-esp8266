@@ -40,8 +40,6 @@ void setup() {
 
   EEPROM.begin(1024);
 
-  client = new WiFiClient();
-
   if(node_mode == NODE_MODE_ACTIVE) {
     WiFi.mode(WIFI_STA);
     //connectWiFiClient(20);
