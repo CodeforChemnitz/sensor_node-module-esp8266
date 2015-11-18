@@ -62,6 +62,16 @@ uint8_t getWiFiPassword(char *password, uint8_t max_len)
   return readEEPROM_string(NODE_EEPROM_PASSWORD_OFFSET, password, max_len);
 }
 
+uint8_t getAPIHostname(char *hostname, uint8_t max_len)
+{
+  return readEEPROM_string(NODE_EEPROM_API_HOSTNAME_OFFSET, hostname, max_len);
+}
+
+uint8_t setAPIHostname(char *hostname, uint8_t len)
+{
+  return writeEEPROM_string(NODE_EEPROM_API_HOSTNAME_OFFSET, hostname, len);
+}
+
 uint8_t getNodeConfigStatus()
 {
   uint8_t status;

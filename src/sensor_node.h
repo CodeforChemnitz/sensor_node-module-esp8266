@@ -17,8 +17,12 @@
 #define NODE_MODE_ACTIVE 0
 #define NODE_MODE_CONFIG 1
 
-#define NODE_EEPROM_SSID_OFFSET 1
-#define NODE_EEPROM_PASSWORD_OFFSET 66
+#define NODE_EEPROM_SSID_OFFSET               1
+#define NODE_EEPROM_PASSWORD_OFFSET          66
+#define NODE_EEPROM_API_HOSTNAME_OFFSET     128
+#define NODE_EEPROM_API_HOSTNAME_MAX_LENGTH  64
+#define NODE_EEPROM_API_PORT_OFFSET         193
+#define NODE_EEPROM_API_PORT_SIZE             2
 
 
 class DataString : public Print
@@ -62,8 +66,10 @@ uint8_t ICACHE_FLASH_ATTR writeEEPROM_string(uint16_t, char *, uint8_t);
 
 bool ICACHE_FLASH_ATTR waitWiFiClientConnected(uint8_t);
 bool ICACHE_FLASH_ATTR connectWiFiClient(uint8_t connect_timeout);
+uint8_t ICACHE_FLASH_ATTR setAPIHostname(char *, uint8_t);
 uint8_t ICACHE_FLASH_ATTR setWiFiSSID(char *ssid, uint8_t len);
 uint8_t ICACHE_FLASH_ATTR setWiFiPassword(char *password, uint8_t len);
+uint8_t ICACHE_FLASH_ATTR getAPIHostname(char *, uint8_t);
 uint8_t ICACHE_FLASH_ATTR getWiFiPassword(char *password, uint8_t max_len);
 uint8_t ICACHE_FLASH_ATTR getNodeConfigStatus();
 uint8_t ICACHE_FLASH_ATTR getWiFiSSID(char *ssid, uint8_t max_len);
