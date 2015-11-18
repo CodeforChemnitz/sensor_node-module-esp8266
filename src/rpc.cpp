@@ -35,6 +35,14 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
     if(WiFi.status() != WL_CONNECTED) {
       connectWiFiClient(1);
     }
+
+    // get Params UUID and API KEY
+    this->gatParam_string(&this->sensor_uuid[0], SENSOR_NODE_UUID_MAX_LENGTH);
+    this->sensor_uuid[SENSOR_NODE_UUID_MAX_LENGTH] = '\0';
+
+    this->gatParam_string(&this->sensor_key[0], SENSOR_NODE_KEY_MAX_LENGTH);
+    this->sensor_uuid[SENSOR_NODE_KEY_MAX_LENGTH] = '\0';
+
     this->status = 2;
     this->cache->reset();
     this->cache->print("[");
@@ -136,10 +144,13 @@ void ArduRPC_SensorNode::submitData()
 
   getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
 
-  client->println("POST /sensor/data");
+  client->print("POST /sensors/");
+  client->print(this->sensor_uuid);
   client->print("Host: ");
   client->println(hostname);
   client->println("Connection: close");
+  client->print("X-Sensor-Api-Key: ");
+  client->println(this->sensor_key);
   client->print("Content-Length: ");
   client->println(this->cache->length);
   client->println();

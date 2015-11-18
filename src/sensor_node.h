@@ -31,6 +31,8 @@
 
 #define NODE_API_DEFAULT_HOSTNAME ""
 
+#define SENSOR_NODE_UUID_MAX_LENGTH 64
+#define SENSOR_NODE_KEY_MAX_LENGTH  64
 
 class DataString : public Print
 {
@@ -54,6 +56,8 @@ class ArduRPC_SensorNode : public ArduRPCHandler
   private:
     uint8_t status;
     DataString *cache;
+    char sensor_uuid[SENSOR_NODE_UUID_MAX_LENGTH + 1];
+    char sensor_key[SENSOR_NODE_UUID_MAX_LENGTH + 1];
 };
 
 void ICACHE_FLASH_ATTR handleAPIHostname();
