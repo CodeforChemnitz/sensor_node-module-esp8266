@@ -31,6 +31,9 @@ void handleAPIHostname()
 void handleAPIPort()
 {
   uint16_t port;
+
+  server->sendHeader("Connection", "close");
+
   if (server->method() == HTTP_GET) {
     port = getAPIPort();
     server->send(200, "text/plain", String(port));
@@ -46,6 +49,9 @@ void handleAPIPort()
 }
 
 void handleNotFound(){
+
+  server->sendHeader("Connection", "close");
+
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server->uri();
@@ -65,6 +71,9 @@ void handlePassword()
   uint8_t len;
   char password[65];
   String password_s;
+
+  server->sendHeader("Connection", "close");
+
   if (server->method() == HTTP_GET) {
     len = getWiFiPassword(&password[0], 64);
     if(len > 0) {
@@ -94,6 +103,8 @@ void handleRegister()
   StaticJsonBuffer<200> jsonBuffer;
   char buffer[201];
   uint8_t i;
+
+  server->sendHeader("Connection", "close");
 
   String email = server->arg("email");
   String name = server->arg("name");
@@ -173,6 +184,8 @@ void handleRestart()
 
 void handleRoot()
 {
+  server->sendHeader("Connection", "close");
+
   String message = "SensorNode\n\n";
   message += "SSID(AP): SensorNode\n";
   message += "IP(AP): ";
@@ -189,6 +202,9 @@ void handleRoot()
 void handleSave()
 {
   EEPROM.commit();
+
+  server->sendHeader("Connection", "close");
+
   server->send(200, "text/plain", "Config saved to eeprom");
 }
 
@@ -198,6 +214,9 @@ void handleScanSSID()
   String query;
   String ssid;
   uint8_t first = 1;
+
+  server->sendHeader("Connection", "close");
+
   if (server->method() == HTTP_GET) {
     query = server->arg("q");
     int n = WiFi.scanNetworks();
@@ -245,6 +264,9 @@ void handleSSID()
   uint8_t len;
   char ssid[65];
   String ssid_s;
+
+  server->sendHeader("Connection", "close");
+
   if (server->method() == HTTP_GET) {
     len = getWiFiSSID(&ssid[0], 64);
     if(len > 0) {
