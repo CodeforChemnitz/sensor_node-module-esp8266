@@ -49,6 +49,7 @@ class ArduRPC_SensorNode : public ArduRPCHandler
 };
 
 void ICACHE_FLASH_ATTR handleAPIHostname();
+void ICACHE_FLASH_ATTR handleAPIPort();
 void ICACHE_FLASH_ATTR handleNotFound();
 void ICACHE_FLASH_ATTR handlePassword();
 void ICACHE_FLASH_ATTR handleRegister();

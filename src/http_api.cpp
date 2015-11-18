@@ -27,6 +27,23 @@ void handleAPIHostname()
 
 }
 
+void handleAPIPort()
+{
+  uint16_t port;
+  if (server->method() == HTTP_GET) {
+    port = getAPIPort();
+    server->send(200, "text/plain", String(port));
+  } else if (server->method() == HTTP_POST) {
+    if(server->args() == 0) {
+      server->send(400, "text/plain", "No argument given");
+      return;
+    }
+    port = server->arg("port").toInt();
+    setAPIPort(port);
+    server->send(200, "text/plain", "Port set");
+  }
+}
+
 void handleNotFound(){
   String message = "File Not Found\n\n";
   message += "URI: ";
