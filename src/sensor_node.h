@@ -34,16 +34,20 @@
 #define SENSOR_NODE_UUID_MAX_LENGTH 64
 #define SENSOR_NODE_KEY_MAX_LENGTH  64
 
+template <uint16_t SIZE>
 class DataString : public Print
 {
   public:
-    DataString(uint16_t);
-    void reset();
-    virtual size_t write(uint8_t);
+    DataString() { this->length = 0; };
+    void reset() { this->length = 0; };
+    virtual size_t write(uint8_t c) {
+      this->data[this->length] = c;
+      this->length++;
+    };
     uint16_t length;
-    uint8_t *data;
+    uint8_t data[SIZE];
   private:
-    uint16_t max_length;
+    uint16_t max_length = SIZE;
 };
 
 class ArduRPC_SensorNode : public ArduRPCHandler
@@ -55,7 +59,7 @@ class ArduRPC_SensorNode : public ArduRPCHandler
     void ICACHE_FLASH_ATTR submitData();
   private:
     uint8_t status;
-    DataString *cache;
+    DataString<1024> cache;
     char sensor_uuid[SENSOR_NODE_UUID_MAX_LENGTH + 1];
     char sensor_key[SENSOR_NODE_UUID_MAX_LENGTH + 1];
 };
