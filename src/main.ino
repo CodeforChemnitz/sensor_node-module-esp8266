@@ -63,6 +63,7 @@ void setup() {
     server->on("/action/register", handleRegister);
     server->on("/action/restart", handleRestart);
     server->on("/action/save", handleSave);
+    server->on("/action/api/hostname", handleAPIHostname);
     server->on("/action/wifi/ssids", handleScanSSID);
     server->on("/config/wifi/sta/ssid", handleSSID);
     server->on("/config/wifi/sta/password", handlePassword);

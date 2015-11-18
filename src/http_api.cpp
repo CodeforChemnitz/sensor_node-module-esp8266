@@ -1,5 +1,32 @@
 #include "sensor_node.h"
 
+void handleAPIHostname()
+{
+  uint8_t len;
+  char hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH + 1];
+  String hostname_s;
+  if (server->method() == HTTP_GET) {
+    len = getAPIHostname(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
+    if(len > 0) {
+      hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH] = '\0';
+      server->send(200, "text/plain", hostname);
+    } else {
+      server->send(404, "text/plain", "Hostname not set");
+    }
+  } else if (server->method() == HTTP_POST) {
+    if(server->args() == 0) {
+      server->send(400, "text/plain", "No argument given");
+      return;
+    }
+    hostname_s = server->arg("hostname");
+    hostname_s.toCharArray(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
+    hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH] = '\0';
+    setAPIHostname(hostname, hostname_s.length());
+    server->send(200, "text/plain", "Password set");
+  }
+
+}
+
 void handleNotFound(){
   String message = "File Not Found\n\n";
   message += "URI: ";

@@ -48,6 +48,7 @@ class ArduRPC_SensorNode : public ArduRPCHandler
     DataString *cache;
 };
 
+void ICACHE_FLASH_ATTR handleAPIHostname();
 void ICACHE_FLASH_ATTR handleNotFound();
 void ICACHE_FLASH_ATTR handlePassword();
 void ICACHE_FLASH_ATTR handleRegister();
