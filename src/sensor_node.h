@@ -56,6 +56,10 @@ void ICACHE_FLASH_ATTR handleSSID();
 extern ESP8266WebServer *server;
 extern WiFiClient *client;
 
+// EEPROM helper functions
+uint8_t ICACHE_FLASH_ATTR readEEPROM_string(uint16_t, char *, uint8_t);
+uint8_t ICACHE_FLASH_ATTR writeEEPROM_string(uint16_t, char *, uint8_t);
+
 bool ICACHE_FLASH_ATTR waitWiFiClientConnected(uint8_t);
 bool ICACHE_FLASH_ATTR connectWiFiClient(uint8_t connect_timeout);
 uint8_t ICACHE_FLASH_ATTR setWiFiSSID(char *ssid, uint8_t len);
