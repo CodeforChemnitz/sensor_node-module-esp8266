@@ -17,7 +17,7 @@ uint8_t readEEPROM_string(uint16_t eeprom_addr, char *data, uint8_t max_len)
 
   for(i = 0; i < len; i++) {
     data[i] = EEPROM.read(eeprom_addr);
-    eeprom_addr;
+    eeprom_addr++;
   }
 
   if(len < max_len) {
