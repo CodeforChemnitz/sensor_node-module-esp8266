@@ -3,9 +3,13 @@
 uint8_t getNodeConfigStatus()
 {
   uint8_t status;
-  status = EEPROM.read(0);
+  uint8_t version_major, version_minor;
 
-  if(status != 0x33) {
+  status = EEPROM.read(0);
+  version_major = EEPROM.read(1);
+  version_minor = EEPROM.read(2);
+
+  if(status != 0xAA && version_major == NODE_EEPROM_VERSION_MAJOR) {
     return 0;
   }
   return 1;
@@ -38,9 +42,18 @@ void initConfig()
   if(getNodeConfigStatus()) {
     return;
   }
-  EEPROM.write(NODE_EEPROM_SSID_OFFSET, 0x00);
-  EEPROM.write(NODE_EEPROM_PASSWORD_OFFSET, 0x00);
-  EEPROM.write(0, 0x33);
+
+  // initialize eeprom with empty values
+  char empty[0];
+  setAPIHostname(&empty[0], 0);
+  setAPIPort(0);
+  setWiFiSSID(&empty[0], 0);
+  setWiFiPassword(&empty[0], 0);
+
+  // Set config version
+  EEPROM.write(0, 0xAA);
+  EEPROM.write(1, NODE_EEPROM_VERSION_MAJOR);
+  EEPROM.write(2, NODE_EEPROM_VERSION_MINOR);
   EEPROM.commit();
 }
 
