@@ -39,6 +39,16 @@ uint16_t getAPIPort()
   return port;
 }
 
+uint16_t getAPIPortOrDefault()
+{
+  uint16_t port;
+  EEPROM.get(NODE_EEPROM_API_PORT_OFFSET, port);
+  if(port > 0) {
+    return port;
+  }
+  return 80;
+}
+
 uint8_t getWiFiPassword(char *password, uint8_t max_len)
 {
   return readEEPROM_string(NODE_EEPROM_PASSWORD_OFFSET, password, max_len);
