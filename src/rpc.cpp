@@ -37,10 +37,10 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
     }
 
     // get Params UUID and API KEY
-    this->gatParam_string(&this->sensor_uuid[0], SENSOR_NODE_UUID_MAX_LENGTH);
+    this->_rpc->getParam_string(&this->sensor_uuid[0], SENSOR_NODE_UUID_MAX_LENGTH);
     this->sensor_uuid[SENSOR_NODE_UUID_MAX_LENGTH] = '\0';
 
-    this->gatParam_string(&this->sensor_key[0], SENSOR_NODE_KEY_MAX_LENGTH);
+    this->_rpc->getParam_string(&this->sensor_key[0], SENSOR_NODE_KEY_MAX_LENGTH);
     this->sensor_uuid[SENSOR_NODE_KEY_MAX_LENGTH] = '\0';
 
     this->status = 2;
@@ -151,6 +151,7 @@ void ArduRPC_SensorNode::submitData()
   client->println("Connection: close");
   client->print("X-Sensor-Api-Key: ");
   client->println(this->sensor_key);
+  client->print("X-Sensor-Version: 1\r\n");
   client->print("Content-Length: ");
   client->println(this->cache->length);
   client->println();
