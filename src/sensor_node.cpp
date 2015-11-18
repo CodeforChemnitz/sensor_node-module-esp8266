@@ -67,9 +67,22 @@ uint8_t getAPIHostname(char *hostname, uint8_t max_len)
   return readEEPROM_string(NODE_EEPROM_API_HOSTNAME_OFFSET, hostname, max_len);
 }
 
+uint16_t getAPIPort()
+{
+  uint16_t port;
+  EEPROM.get(NODE_EEPROM_API_PORT_OFFSET, port);
+  return port;
+}
+
 uint8_t setAPIHostname(char *hostname, uint8_t len)
 {
   return writeEEPROM_string(NODE_EEPROM_API_HOSTNAME_OFFSET, hostname, len);
+}
+
+bool setAPIPort(uint16_t port)
+{
+  EEPROM.put(NODE_EEPROM_API_PORT_OFFSET, port);
+  return true;
 }
 
 uint8_t getNodeConfigStatus()
