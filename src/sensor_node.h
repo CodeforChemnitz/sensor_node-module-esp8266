@@ -29,6 +29,8 @@
 #define NODE_EEPROM_VERSION_MAJOR 0
 #define NODE_EEPROM_VERSION_MINOR 0
 
+#define NODE_API_DEFAULT_HOSTNAME ""
+
 
 class DataString : public Print
 {
@@ -71,6 +73,10 @@ extern WiFiClient *client;
 uint8_t ICACHE_FLASH_ATTR readEEPROM_string(uint16_t, char *, uint8_t);
 uint8_t ICACHE_FLASH_ATTR writeEEPROM_string(uint16_t, char *, uint8_t);
 
+// Config
+uint8_t ICACHE_FLASH_ATTR getAPIHostnameOrDefault(char *, uint8_t);
+uint16_t ICACHE_FLASH_ATTR getAPIPortOrDefault();
+
 bool ICACHE_FLASH_ATTR waitWiFiClientConnected(uint8_t);
 bool ICACHE_FLASH_ATTR connectWiFiClient(uint8_t connect_timeout);
 uint8_t ICACHE_FLASH_ATTR setAPIHostname(char *, uint8_t);
@@ -83,5 +89,7 @@ uint8_t ICACHE_FLASH_ATTR getWiFiPassword(char *password, uint8_t max_len);
 uint8_t ICACHE_FLASH_ATTR getNodeConfigStatus();
 uint8_t ICACHE_FLASH_ATTR getWiFiSSID(char *ssid, uint8_t max_len);
 void ICACHE_FLASH_ATTR initConfig();
+
+WiFiClient ICACHE_FLASH_ATTR *connectSensorAPI();
 
 #endif

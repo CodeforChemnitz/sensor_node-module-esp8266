@@ -16,7 +16,6 @@ ArduRPC_Serial *rpc_serial;
 ArduRPC_SensorNode *rpc_sensor_node;
 
 ESP8266WebServer *server;
-WiFiClient *client;
 
 void setup() {
   pinMode(16, INPUT);

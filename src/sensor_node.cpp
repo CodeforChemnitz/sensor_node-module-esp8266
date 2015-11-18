@@ -1,5 +1,7 @@
 #include "sensor_node.h"
 
+WiFiClient *client = NULL;
+
 bool connectWiFiClient(uint8_t connect_timeout=0)
 {
   char ssid[65];
@@ -47,3 +49,30 @@ bool waitWiFiClientConnected(uint8_t connect_timeout)
   return false;
 }
 
+WiFiClient *connectSensorAPI()
+{
+  /* ToDo: Add SSL/TLS support */
+  uint16_t port;
+  char hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH + 1];
+
+  if(client == NULL) {
+    client = new WiFiClient();
+  }
+
+  if(WiFi.status() != WL_CONNECTED) {
+    return NULL;
+  }
+
+  getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
+  hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH] = '\0';
+  port = getAPIPortOrDefault();
+
+  if(client != NULL) {
+    if(!client->connected()) {
+      if(client->connect(hostname, port)) {
+        return client;
+      }
+    }
+  }
+  return NULL;
+}
