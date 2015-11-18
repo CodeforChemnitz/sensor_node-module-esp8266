@@ -20,6 +20,18 @@ uint8_t getAPIHostname(char *hostname, uint8_t max_len)
   return readEEPROM_string(NODE_EEPROM_API_HOSTNAME_OFFSET, hostname, max_len);
 }
 
+uint8_t getAPIHostnameOrDefault(char *hostname, uint8_t max_len)
+{
+  uint8_t len;
+  char default_hostname[] = NODE_API_DEFAULT_HOSTNAME;
+  len = getAPIHostname(hostname, max_len);
+  if(len > 0) {
+    return len;
+  }
+  strncpy(hostname, default_hostname, max_len);
+  return strlen(hostname);
+}
+
 uint16_t getAPIPort()
 {
   uint16_t port;
