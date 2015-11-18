@@ -50,6 +50,7 @@ class ArduRPC_SensorNode : public ArduRPCHandler
     ArduRPC_SensorNode(ArduRPC &rpc, char *name);
     uint8_t
       ICACHE_FLASH_ATTR call(uint8_t);
+    void ICACHE_FLASH_ATTR submitData();
   private:
     uint8_t status;
     DataString *cache;

@@ -32,34 +32,26 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
 
   if (cmd_id == 0x10) {
     /* start() */
-    // ToDo: use connect wifi function and status = 1
-    //connectWiFiClient(1);
+    if(WiFi.status() != WL_CONNECTED) {
+      connectWiFiClient(1);
+    }
     this->status = 2;
     this->cache->reset();
     this->cache->print("[");
     return RPC_RETURN_SUCCESS;
   } else if (cmd_id == 0x11) {
-    this->cache->print("]");
     /* finish() */
-    // ToDo: change to client, only for debugging
-    //if(client.connect("", 80)) {
-      Serial.println("POST /sensor/data");
-      Serial.println("Host: host");
-      Serial.println("Connection: close");
-      Serial.print("Content-Length: ");
-      Serial.println(this->cache->length);
-      Serial.println();
-      for(i = 0; i < this->cache->length; i++) {
-        Serial.print((char)this->cache->data[i]);
-      }
-    //}
+    if(this->status == 2 or this->status == 3) {
+      this->cache->print("]");
+    }
+    this->status = 4;
+    this->submitData();
+
     return RPC_RETURN_SUCCESS;
   } else if (cmd_id == 0x12) {
     /* getStatus() */
-    if(this->status == 1) {
-      if(WiFi.status() == WL_CONNECTED) {
-        this->status = 2;
-      }
+    if(this->status == 4) {
+      this->submitData();
     }
     this->_rpc->writeResult_uint8(this->status);
     return RPC_RETURN_SUCCESS;
@@ -127,3 +119,33 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
   return RPC_RETURN_COMMAND_NOT_FOUND;
 }
 
+void ArduRPC_SensorNode::submitData()
+{
+  uint16_t i;
+  WiFiClient *client;
+  char hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH + 1];
+
+  if(this->status != 4) {
+    return;
+  }
+
+  client = connectSensorAPI();
+  if(client == NULL) {
+    return;
+  }
+
+  getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
+
+  client->println("POST /sensor/data");
+  client->print("Host: ");
+  client->println(hostname);
+  client->println("Connection: close");
+  client->print("Content-Length: ");
+  client->println(this->cache->length);
+  client->println();
+  for(i = 0; i < this->cache->length; i++) {
+    Serial.print((char)this->cache->data[i]);
+  }
+  this->status = 0;
+  client->stop();
+}
