@@ -66,6 +66,7 @@ void setup() {
     server->on("/config/wifi/sta/ssid", handleSSID);
     server->on("/config/wifi/sta/password", handlePassword);
     server->on("/info/wifi/ssids", handleScanSSID);
+    server->on("/info/wifi/sta", handleInfoWiFiSTA);
     server->on("/setup", []() {
       server->setContentLength(sizeof(PAGE_setup));
       server->sendHeader("Content-Encoding", "gzip");

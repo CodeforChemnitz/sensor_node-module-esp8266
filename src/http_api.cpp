@@ -41,6 +41,31 @@ void handleAPIPort()
   }
 }
 
+void handleInfoWiFiSTA()
+{
+  StaticJsonBuffer<128> jsonBuffer;
+  char buffer[129];
+  JsonObject& root = jsonBuffer.createObject();
+  IPAddress tmp_ip;
+  char tmp[16];
+
+  if(WiFi.status() == WL_CONNECTED) {
+    root["connected"] = true;
+    tmp_ip = WiFi.localIP();
+    sprintf(tmp, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
+    root["ip"] = tmp;
+
+    tmp_ip = WiFi.subnetMask();
+    sprintf(tmp, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
+    root["netmask"] = tmp;
+  } else {
+    root["connected"] = false;
+  }
+
+  root.printTo(buffer, 128);
+  server->send(200, "application/json", buffer);
+}
+
 void handleNotFound(){
 
   String message = "File Not Found\n\n";
