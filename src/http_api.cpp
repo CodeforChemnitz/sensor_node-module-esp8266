@@ -8,12 +8,8 @@ void handleAPIHostname()
   String hostname_s;
   if (server->method() == HTTP_GET) {
     len = getAPIHostname(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
-    if(len > 0) {
-      hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH] = '\0';
-      server->send(200, "text/plain", hostname);
-    } else {
-      server->send(404, "text/plain", "Hostname not set");
-    }
+    hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH] = '\0';
+    server->send(200, "text/plain", hostname);
   } else if (server->method() == HTTP_POST) {
     if(server->args() == 0) {
       server->send(400, "text/plain", "No argument given");
@@ -25,7 +21,6 @@ void handleAPIHostname()
     setAPIHostname(hostname, hostname_s.length());
     server->send(200, "text/plain", "Password set");
   }
-
 }
 
 void handleAPIPort()
