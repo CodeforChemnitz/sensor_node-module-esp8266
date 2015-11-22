@@ -47,17 +47,18 @@ void handleInfoWiFiSTA()
   char buffer[129];
   JsonObject& root = jsonBuffer.createObject();
   IPAddress tmp_ip;
-  char tmp[16];
+  char tmp_buf_ip[16];
+  char tmp_buf_netmask[16];
 
   if(WiFi.status() == WL_CONNECTED) {
     root["connected"] = true;
     tmp_ip = WiFi.localIP();
-    sprintf(tmp, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
-    root["ip"] = tmp;
+    sprintf(tmp_buf_ip, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
+    root["ip"] = tmp_buf_ip;
 
     tmp_ip = WiFi.subnetMask();
-    sprintf(tmp, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
-    root["netmask"] = tmp;
+    sprintf(tmp_buf_netmask, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
+    root["netmask"] = tmp_buf_netmask;
   } else {
     root["connected"] = false;
   }
