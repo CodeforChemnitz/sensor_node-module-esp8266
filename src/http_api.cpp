@@ -67,8 +67,8 @@ void handlePassword()
     // Don't return the password for security reasons
     server->send(200, "text/plain", "");
   } else if (server->method() == HTTP_POST) {
-    if(server->args() == 0) {
-      server->send(400, "text/plain", "No argument given");
+    if(!server->hasArg("password")) {
+      server->send(400, "text/plain", "No password given");
       return;
     }
     password_s = server->arg("password");
