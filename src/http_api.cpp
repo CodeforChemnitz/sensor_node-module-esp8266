@@ -250,7 +250,7 @@ void handleSSID()
       server->send(404, "text/plain", "SSID not set");
     }
   } else if (server->method() == HTTP_POST) {
-    if(server->args() == 0) {
+    if(!server->hasArg("ssid")) {
       server->send(400, "text/plain", "No argument given");
       return;
     }
