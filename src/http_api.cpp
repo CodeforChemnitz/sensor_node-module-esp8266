@@ -11,7 +11,7 @@ void handleAPIHostname()
     hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH] = '\0';
     server->send(200, "text/plain", hostname);
   } else if (server->method() == HTTP_POST) {
-    if(server->args() == 0) {
+    if(!server->hasArg("hostname")) {
       server->send(400, "text/plain", "No hostname given");
       return;
     }
@@ -33,7 +33,7 @@ void handleAPIPort()
     port = getAPIPort();
     server->send(200, "text/plain", String(port));
   } else if (server->method() == HTTP_POST) {
-    if(server->args() == 0) {
+    if(!server->hasArg("port")) {
       server->send(400, "text/plain", "No port given");
       return;
     }
