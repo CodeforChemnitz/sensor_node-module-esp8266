@@ -193,45 +193,44 @@ void handleScanSSID()
   String ssid;
   uint8_t first = 1;
 
+  // reserve some memory
+  data.reserve(600);
+
   if (server->method() == HTTP_GET) {
     query = server->arg("q");
     int n = WiFi.scanNetworks();
-    if (n == 0) {
-      server->send(404, "text/plain", "[]");
-    } else {
-      data = "[";
-      for (int i = 0; i < n; ++i) {
-        ssid = WiFi.SSID(i);
-        if(query.length() > 0 and !ssid.startsWith(query)) {
-          continue;
-        }
-        if(first == 0) {
-          data += ",";
-        }
-        first = 0;
-        data += "{\"ssid\"=\"";
-        data += ssid;
-        //data += "\",rssi=\"";
-        //data += WiFi.RSSI(i);
-        data += "\",crypt=\"";
-        if(WiFi.encryptionType(i) == ENC_TYPE_NONE) {
-          data += "none";
-        } else if (WiFi.encryptionType(i) == ENC_TYPE_WEP) {
-          data += "wep";
-        } else if (WiFi.encryptionType(i) == ENC_TYPE_TKIP) {
-          data += "wpa";
-        } else if (WiFi.encryptionType(i) == ENC_TYPE_CCMP) {
-          data += "wpa2";
-        }
-        data += "\"}";
-        delay(10);
-        if(data.length() > 512) {
-          break;
-        }
+    data = "[";
+    for (int i = 0; i < n; ++i) {
+      ssid = WiFi.SSID(i);
+      if(query.length() > 0 and !ssid.startsWith(query)) {
+        continue;
       }
-      data += "]";
-      server->send(200, "text/plain", data);
+      if(first == 0) {
+        data += ",";
+      }
+      first = 0;
+      data += "{\"ssid\"=\"";
+      data += ssid;
+      //data += "\",rssi=\"";
+      //data += WiFi.RSSI(i);
+      data += "\",crypt=\"";
+      if(WiFi.encryptionType(i) == ENC_TYPE_NONE) {
+        data += "none";
+      } else if (WiFi.encryptionType(i) == ENC_TYPE_WEP) {
+        data += "wep";
+      } else if (WiFi.encryptionType(i) == ENC_TYPE_TKIP) {
+        data += "wpa";
+      } else if (WiFi.encryptionType(i) == ENC_TYPE_CCMP) {
+        data += "wpa2";
+      }
+      data += "\"}";
+      delay(10);
+      if(data.length() > 512) {
+        break;
+      }
     }
+    data += "]";
+    server->send(200, "application/json", data);
   }
 }
 
