@@ -74,6 +74,7 @@ void ICACHE_FLASH_ATTR handleRoot();
 void ICACHE_FLASH_ATTR handleSave();
 void ICACHE_FLASH_ATTR handleScanSSID();
 void ICACHE_FLASH_ATTR handleSSID();
+void ICACHE_FLASH_ATTR submitFile(PGM_VOID_P, uint16_t);
 
 extern ESP8266WebServer *server;
 extern WiFiClient *client;

@@ -293,3 +293,18 @@ void handleSSID()
 
 }
 
+void submitFile(PGM_VOID_P mem, uint16_t size)
+{
+  uint16_t i, j;
+  uint8_t buf[200];
+  i = 0;
+  while(i < size) {
+    j = size - i;
+    if(j > 200) {
+      j = 200;
+    }
+    memcpy_P(buf, mem + i, j);
+    server->client().write(&buf[0], j);
+    i += 200;
+  }
+}
