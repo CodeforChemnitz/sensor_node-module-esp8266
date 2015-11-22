@@ -1,5 +1,6 @@
 #include "ArduRPC.h"
 #include "sensor_node.h"
+#include "sensor_node_file.h"
 //#include <ESP8266mDNS.h>
 
 // the serial port, it's also possible to use software serial
@@ -65,6 +66,19 @@ void setup() {
     server->on("/action/wifi/ssids", handleScanSSID);
     server->on("/config/wifi/sta/ssid", handleSSID);
     server->on("/config/wifi/sta/password", handlePassword);
+    server->on("/setup", []() {
+      server->setContentLength(sizeof(PAGE_setup));
+      server->sendHeader("Content-Encoding", "gzip");
+      server->send(200, "text/html", "");
+      submitFile(PAGE_setup, sizeof(PAGE_setup));
+    });
+    server->on("/setup/js.js", []() {
+      server->setContentLength(sizeof(FILE_js));
+      server->sendHeader("Content-Encoding", "gzip");
+      server->send(200, "application/javascript", "");
+      submitFile(FILE_js, sizeof(FILE_js));
+    });
+
     server->onNotFound(handleNotFound);
 
     server->begin();
