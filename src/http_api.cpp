@@ -19,7 +19,7 @@ void handleAPIHostname()
     hostname_s.toCharArray(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
     hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH] = '\0';
     setAPIHostname(hostname, hostname_s.length());
-    server->send(200, "text/plain", "Password set");
+    server->send(200, "text/plain", "Hostname set");
   }
 }
 
