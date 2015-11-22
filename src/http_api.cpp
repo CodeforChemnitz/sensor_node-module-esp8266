@@ -141,9 +141,11 @@ void handleRegister()
     }
     if(millis() - start_time > 5000) {
       server->send(400, "text/plain", "API Timeout");
+      return;
     }
     if(i >= 200) {
       server->send(400, "text/plain", "Memory Limit");
+      return;
     }
   }
   client->stop();
