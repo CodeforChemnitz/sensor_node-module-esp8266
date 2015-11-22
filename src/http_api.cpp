@@ -112,16 +112,14 @@ void handleRegister()
 
   getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
 
-  client->print("POST /sensors HTTP/1.1\r\n");
+  client->println("POST /sensors HTTP/1.1");
   client->print("Host: ");
-  client->print(hostname);
-  client->print("\r\n");
-  client->print("X-Sensor-Version: 1\r\n");
-  client->print("Content-Type: text/plain\r\n");
+  client->println(hostname);
+  client->println("X-Sensor-Version: 1");
+  client->println("Content-Type: application/json");
   client->print("Content-Length: ");
-  client->print(strlen(buffer));
-  client->print("\r\n");
-  client->print("\r\n");
+  client->println(strlen(buffer));
+  client->println();
   client->print(buffer);
 
   String sensor_id = "";
