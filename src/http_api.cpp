@@ -64,13 +64,8 @@ void handlePassword()
   String password_s;
 
   if (server->method() == HTTP_GET) {
-    len = getWiFiPassword(&password[0], 64);
-    if(len > 0) {
-      password[64] = '\0';
-      server->send(200, "text/plain", password);
-    } else {
-      server->send(404, "text/plain", "Password not set");
-    }
+    // Don't return the password for security reasons
+    server->send(200, "text/plain", "");
   } else if (server->method() == HTTP_POST) {
     if(server->args() == 0) {
       server->send(400, "text/plain", "No argument given");
