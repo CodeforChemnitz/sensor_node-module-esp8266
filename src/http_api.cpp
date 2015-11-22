@@ -12,7 +12,7 @@ void handleAPIHostname()
     server->send(200, "text/plain", hostname);
   } else if (server->method() == HTTP_POST) {
     if(server->args() == 0) {
-      server->send(400, "text/plain", "No argument given");
+      server->send(400, "text/plain", "No hostname given");
       return;
     }
     hostname_s = server->arg("hostname");
@@ -34,7 +34,7 @@ void handleAPIPort()
     server->send(200, "text/plain", String(port));
   } else if (server->method() == HTTP_POST) {
     if(server->args() == 0) {
-      server->send(400, "text/plain", "No argument given");
+      server->send(400, "text/plain", "No port given");
       return;
     }
     port = server->arg("port").toInt();
