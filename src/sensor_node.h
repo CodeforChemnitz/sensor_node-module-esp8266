@@ -42,7 +42,9 @@ class DataString : public Print
     void reset() { this->length = 0; };
     virtual size_t write(uint8_t c) {
       this->data[this->length] = c;
-      this->length++;
+      if(this->length < SIZE) {
+        this->length++;
+      }
     };
     uint16_t length;
     uint8_t data[SIZE];
