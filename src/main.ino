@@ -70,6 +70,7 @@ void setup() {
     server->on("/config/api/port", handleAPIPort);
     server->on("/config/wifi/sta/ssid", handleSSID);
     server->on("/config/wifi/sta/password", handlePassword);
+    server->on("/config/sensor", handleConfigSensor);
     server->on("/info/wifi/ssids", handleScanSSID);
     server->on("/info/wifi/sta", handleInfoWiFiSTA);
 

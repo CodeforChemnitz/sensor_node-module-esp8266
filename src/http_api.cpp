@@ -41,6 +41,56 @@ void handleAPIPort()
   }
 }
 
+void handleConfigSensor()
+{
+  uint8_t i, j;
+  uint16_t type;
+  uint8_t count;
+  uint8_t buf[32];
+  uint8_t result_length;
+  uint16_t i2, j2;
+  DataString<2048> output;
+
+  output.reset();
+  output.print("{");
+  count = sensor_remote->getMaxSensorCount();
+  for(i=0; i < count; i++) {
+    if(i > 0) {
+      output.print(",");
+    }
+    output.print(i);
+    output.print(":{");
+    output.print("\"t\":");
+    type = sensor_remote->getSensorType(i);
+    output.print(type);
+    output.print(",");
+    output.print("\"c\":[");
+    result_length = sensor_remote->getSensorConfig(i, &buf[0], sizeof(buf));
+    for(j = 0; j < result_length; j++) {
+      if(j > 0) {
+        output.print(",");
+      }
+      output.print(buf[j]);
+    }
+    output.print("]");
+    output.print("}");
+  }
+  output.print("}");
+
+  server->setContentLength(output.length);
+  server->send(200, "application/json", "");
+
+  i2 = 0;
+  while(i2 < output.length) {
+    j2 = output.length - i2;
+    if(j2 > 200) {
+      j2 = 200;
+    }
+    server->client().write(&output.data[i2], j2);
+    i2 += 200;
+  }
+}
+
 void handleInfoWiFiSTA()
 {
   StaticJsonBuffer<128> jsonBuffer;

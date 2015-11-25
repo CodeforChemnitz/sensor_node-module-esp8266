@@ -78,6 +78,7 @@ class ArduRPC_SensorNodeRemote : public ArduRPCRequestHandler
 
 void ICACHE_FLASH_ATTR handleAPIHostname();
 void ICACHE_FLASH_ATTR handleAPIPort();
+void ICACHE_FLASH_ATTR handleConfigSensor();
 void ICACHE_FLASH_ATTR handleInfoWiFiSTA();
 void ICACHE_FLASH_ATTR handleNotFound();
 void ICACHE_FLASH_ATTR handlePassword();
