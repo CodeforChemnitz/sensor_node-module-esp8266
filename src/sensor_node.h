@@ -70,7 +70,8 @@ class ArduRPC_SensorNodeRemote : public ArduRPCRequestHandler
     ArduRPC_SensorNodeRemote(ArduRPCRequest &rpc, uint8_t handler_id);
 
     uint8_t
-      getMaxSensorCount();
+      getMaxSensorCount(),
+      getSensorConfig(uint8_t, uint8_t *, uint8_t);
     uint16_t
       getSensorType(uint8_t);
 };
