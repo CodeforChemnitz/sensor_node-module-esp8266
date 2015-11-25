@@ -71,6 +71,8 @@ class ArduRPC_SensorNodeRemote : public ArduRPCRequestHandler
 
     uint8_t
       getMaxSensorCount();
+    uint16_t
+      getSensorType(uint8_t);
 };
 
 void ICACHE_FLASH_ATTR handleAPIHostname();
