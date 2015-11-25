@@ -15,6 +15,7 @@ uint8_t node_mode = 1;
 ArduRPC *rpc;
 ArduRPC_Serial *rpc_serial;
 ArduRPC_SensorNode *rpc_sensor_node;
+ArduRPC_SensorNodeRemote *sensor_remote;
 
 ESP8266WebServer *server;
 
@@ -23,6 +24,7 @@ void setup() {
   pinMode(0, INPUT);
   pinMode(2, INPUT);
   uint8_t pin_mode;
+  ArduRPCRequest *rpc_request;
 
   while(digitalRead(0) == HIGH) {
     delay(50);
@@ -49,6 +51,9 @@ void setup() {
     rpc_sensor_node = new ArduRPC_SensorNode(*rpc, "wifi");
   } else if (node_mode == NODE_MODE_CONFIG) {
     server = new ESP8266WebServer(80);
+    rpc_request = new ArduRPCRequest();
+    new ArduRPCRequest_Serial(*rpc_request, RPC_SERIAL_PORT);
+    sensor_remote = new ArduRPC_SensorNodeRemote(*rpc_request, 0x00);
 
     initConfig();
     WiFi.mode(WIFI_AP_STA);
@@ -67,6 +72,7 @@ void setup() {
     server->on("/config/wifi/sta/password", handlePassword);
     server->on("/info/wifi/ssids", handleScanSSID);
     server->on("/info/wifi/sta", handleInfoWiFiSTA);
+
     server->on("/setup", []() {
       server->setContentLength(sizeof(PAGE_setup));
       server->sendHeader("Content-Encoding", "gzip");

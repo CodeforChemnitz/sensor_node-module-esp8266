@@ -64,6 +64,15 @@ class ArduRPC_SensorNode : public ArduRPCHandler
     char sensor_key[SENSOR_NODE_UUID_MAX_LENGTH + 1];
 };
 
+class ArduRPC_SensorNodeRemote : public ArduRPCRequestHandler
+{
+  public:
+    ArduRPC_SensorNodeRemote(ArduRPCRequest &rpc, uint8_t handler_id);
+
+    uint8_t
+      getMaxSensorCount();
+};
+
 void ICACHE_FLASH_ATTR handleAPIHostname();
 void ICACHE_FLASH_ATTR handleAPIPort();
 void ICACHE_FLASH_ATTR handleInfoWiFiSTA();
@@ -79,6 +88,7 @@ void ICACHE_FLASH_ATTR submitFile(PGM_VOID_P, uint16_t);
 
 extern ESP8266WebServer *server;
 extern WiFiClient *client;
+extern ArduRPC_SensorNodeRemote *sensor_remote;
 
 // EEPROM helper functions
 uint8_t ICACHE_FLASH_ATTR readEEPROM_string(uint16_t, char *, uint8_t);
