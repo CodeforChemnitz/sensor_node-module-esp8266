@@ -46,7 +46,7 @@ uint8_t ArduRPC_SensorNodeRemote::getSensorConfig(uint8_t sensor_id, uint8_t *da
 
 uint16_t ArduRPC_SensorNodeRemote::getSensorType(uint8_t sensor_id)
 {
-  uint8_t value;
+  uint16_t value;
 
   this->_rpc->reset();
   this->_rpc->writeRequest_uint8(sensor_id);
@@ -55,4 +55,5 @@ uint16_t ArduRPC_SensorNodeRemote::getSensorType(uint8_t sensor_id)
   value = this->_rpc->readResult_uint16();
   return value;
 }
+
 
