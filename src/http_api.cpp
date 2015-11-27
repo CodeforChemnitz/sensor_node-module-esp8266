@@ -42,7 +42,7 @@ void handleAPIPort()
   }
 }
 
-void handleConfigSensor()
+void handleConfigSensor(int sensor_id)
 {
   uint8_t i, j;
   uint16_t type;
@@ -52,30 +52,25 @@ void handleConfigSensor()
   uint16_t i2, j2;
   DataString<2048> output;
 
-  output.reset();
-  output.print("{");
   count = sensor_remote->getMaxSensorCount();
-  for(i=0; i < count; i++) {
-    if(i > 0) {
+  if(count < sensor_id || sensor_id < 0) {
+    server->send(404, "application/json", "{}");
+  }
+
+  output.print("{");
+  output.print("\"type\":");
+  type = sensor_remote->getSensorType(i);
+  output.print(type);
+  output.print(",");
+  output.print("\"config\":[");
+  result_length = sensor_remote->getSensorConfig(i, &buf[0], sizeof(buf));
+  for(j = 0; j < result_length; j++) {
+    if(j > 0) {
       output.print(",");
     }
-    output.print(i);
-    output.print(":{");
-    output.print("\"t\":");
-    type = sensor_remote->getSensorType(i);
-    output.print(type);
-    output.print(",");
-    output.print("\"c\":[");
-    result_length = sensor_remote->getSensorConfig(i, &buf[0], sizeof(buf));
-    for(j = 0; j < result_length; j++) {
-      if(j > 0) {
-        output.print(",");
-      }
-      output.print(buf[j]);
-    }
-    output.print("]");
-    output.print("}");
+    output.print(buf[j]);
   }
+  output.print("]");
   output.print("}");
 
   server->setContentLength(output.length);
@@ -120,7 +115,7 @@ void handleInfoWiFiSTA()
 
 void handleNotFound()
 {
-  uint8_t sensor_id;
+  int sensor_id;
   String uri = server->uri();
   String tmp;
 
@@ -151,7 +146,7 @@ void handleNotFound()
   if (uri.startsWith("/config/sensor/")) {
     tmp = uri.substring(15, 4);
     sensor_id = tmp.toInt();
-    handleConfigSensor();
+    handleConfigSensor(sensor_id);
     return;
   }
   if (uri.equals("/config/wifi/sta/ssid")) {
