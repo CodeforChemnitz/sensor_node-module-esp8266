@@ -166,7 +166,7 @@ void handleNotFound()
     return;
   }
   if (uri.startsWith("/config/sensor/")) {
-    tmp = uri.substring(15, 4);
+    tmp = uri.substring(15, 19);
     sensor_id = tmp.toInt();
     handleConfigSensor(sensor_id);
     return;
