@@ -45,46 +45,66 @@ void handleAPIPort()
 void handleConfigSensor(int sensor_id)
 {
   uint8_t i, j;
-  uint16_t type;
+  uint16_t type_id;
   uint8_t count;
   uint8_t buf[32];
   uint8_t result_length;
   uint16_t i2, j2;
   DataString<2048> output;
+  StaticJsonBuffer<512> jsonBuffer;
 
   count = sensor_remote->getMaxSensorCount();
   if(count < sensor_id || sensor_id < 0) {
     server->send(404, "application/json", "{}");
   }
 
-  output.print("{");
-  output.print("\"type\":");
-  type = sensor_remote->getSensorType(i);
-  output.print(type);
-  output.print(",");
-  output.print("\"config\":[");
-  result_length = sensor_remote->getSensorConfig(i, &buf[0], sizeof(buf));
-  for(j = 0; j < result_length; j++) {
-    if(j > 0) {
-      output.print(",");
+  if(server->method() == HTTP_GET) {
+    output.print("{");
+    output.print("\"type\":");
+    type_id = sensor_remote->getSensorType(sensor_id);
+    output.print(type_id);
+    output.print(",");
+    output.print("\"config\":[");
+    result_length = sensor_remote->getSensorConfig(sensor_id, &buf[0], sizeof(buf));
+    for(j = 0; j < result_length; j++) {
+      if(j > 0) {
+        output.print(",");
+      }
+      output.print(buf[j]);
     }
-    output.print(buf[j]);
-  }
-  output.print("]");
-  output.print("}");
+    output.print("]");
+    output.print("}");
 
-  server->setContentLength(output.length);
-  server->send(200, "application/json", "");
+    server->setContentLength(output.length);
+    server->send(200, "application/json", "");
 
-  i2 = 0;
-  while(i2 < output.length) {
-    j2 = output.length - i2;
-    if(j2 > 200) {
-      j2 = 200;
+    i2 = 0;
+    while(i2 < output.length) {
+      j2 = output.length - i2;
+      if(j2 > 200) {
+        j2 = 200;
+      }
+      server->client().write(&output.data[i2], j2);
+      i2 += 200;
     }
-    server->client().write(&output.data[i2], j2);
-    i2 += 200;
+    return;
   }
+
+  if(!server->hasArg("config")) {
+    server->send(400, "text/plain", "No config given");
+    return;
+  }
+  JsonObject& root = jsonBuffer.parseObject(server->arg("config"));
+  type_id = root["type"];
+  JsonArray& configArray = root["config"];
+  j = configArray.size();
+  if(j > sizeof(buf)) {
+    j = sizeof(buf);
+  }
+  for(i = 0; i < j; i++) {
+    buf[i] = configArray.get<uint8_t>(i);
+  }
+  sensor_remote->setSensor(sensor_id, type_id, &buf[0], j);
 }
 
 void handleInfoWiFiSTA()
