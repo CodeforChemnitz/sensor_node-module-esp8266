@@ -1,6 +1,5 @@
 #include "ArduRPC.h"
 #include "sensor_node.h"
-#include "sensor_node_file.h"
 //#include <ESP8266mDNS.h>
 
 // the serial port, it's also possible to use software serial
@@ -61,31 +60,6 @@ void setup() {
     WiFi.softAPConfig(IPAddress(192, 168, 255, 254), IPAddress(), IPAddress(255, 255, 255, 0));
     connectWiFiClient(20);
 
-
-    server->on("/", handleRoot);
-    server->on("/action/register", handleRegister);
-    server->on("/action/restart", handleRestart);
-    server->on("/action/save", handleSave);
-    server->on("/config/api/hostname", handleAPIHostname);
-    server->on("/config/api/port", handleAPIPort);
-    server->on("/config/wifi/sta/ssid", handleSSID);
-    server->on("/config/wifi/sta/password", handlePassword);
-    server->on("/config/sensor", handleConfigSensor);
-    server->on("/info/wifi/ssids", handleScanSSID);
-    server->on("/info/wifi/sta", handleInfoWiFiSTA);
-
-    server->on("/setup", []() {
-      server->setContentLength(sizeof(PAGE_setup));
-      server->sendHeader("Content-Encoding", "gzip");
-      server->send(200, "text/html", "");
-      submitFile(PAGE_setup, sizeof(PAGE_setup));
-    });
-    server->on("/setup/js.js", []() {
-      server->setContentLength(sizeof(FILE_js));
-      server->sendHeader("Content-Encoding", "gzip");
-      server->send(200, "application/javascript", "");
-      submitFile(FILE_js, sizeof(FILE_js));
-    });
 
     server->onNotFound(handleNotFound);
 

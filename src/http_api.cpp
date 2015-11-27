@@ -1,5 +1,6 @@
 #include <ArduinoJson.h>
 #include "sensor_node.h"
+#include "sensor_node_file.h"
 
 void handleAPIHostname()
 {
@@ -117,8 +118,73 @@ void handleInfoWiFiSTA()
   server->send(200, "application/json", buffer);
 }
 
-void handleNotFound(){
+void handleNotFound()
+{
+  uint8_t sensor_id;
+  String uri = server->uri();
+  String tmp;
 
+  if (uri.equals("/")) {
+    handleRoot();
+    return;
+  }
+  if (uri.equals("/action/register")) {
+    handleRegister();
+    return;
+  }
+  if (uri.equals("/action/restart")) {
+    handleRestart();
+    return;
+  }
+  if (uri.equals("/action/save")) {
+    handleSave();
+    return;
+  }
+  if (uri.equals("/config/api/hostname")) {
+    handleAPIHostname();
+    return;
+  }
+  if (uri.equals("/config/api/port")) {
+    handleAPIPort();
+    return;
+  }
+  if (uri.startsWith("/config/sensor/")) {
+    tmp = uri.substring(15, 4);
+    sensor_id = tmp.toInt();
+    handleConfigSensor();
+    return;
+  }
+  if (uri.equals("/config/wifi/sta/ssid")) {
+    handleSSID();
+    return;
+  }
+  if (uri.equals("/config/wifi/sta/password")) {
+    handlePassword();
+    return;
+  }
+  if (uri.equals("/info/wifi/ssids")) {
+    handleScanSSID();
+    return;
+  }
+  if (uri.equals("/info/wifi/sta")) {
+    handleInfoWiFiSTA();
+    return;
+  }
+  if (uri.equals("/setup")) {
+    server->setContentLength(sizeof(PAGE_setup));
+    server->sendHeader("Content-Encoding", "gzip");
+    server->send(200, "text/html", "");
+    submitFile(PAGE_setup, sizeof(PAGE_setup));
+    return;
+  }
+  if (uri.equals("/setup/js.js")) {
+    server->setContentLength(sizeof(FILE_js));
+    server->sendHeader("Content-Encoding", "gzip");
+    server->send(200, "application/javascript", "");
+    submitFile(FILE_js, sizeof(FILE_js));
+    return;
+  }
+  
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server->uri();
