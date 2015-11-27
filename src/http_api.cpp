@@ -50,12 +50,13 @@ void handleConfigSensor(int sensor_id)
   uint8_t buf[32];
   uint8_t result_length;
   uint16_t i2, j2;
-  DataString<2048> output;
+  DataString<1024> output;
   StaticJsonBuffer<512> jsonBuffer;
 
   count = sensor_remote->getMaxSensorCount();
   if(count < sensor_id || sensor_id < 0) {
     server->send(404, "application/json", "{}");
+    return;
   }
 
   if(server->method() == HTTP_GET) {
@@ -105,6 +106,7 @@ void handleConfigSensor(int sensor_id)
     buf[i] = configArray.get<uint8_t>(i);
   }
   sensor_remote->setSensor(sensor_id, type_id, &buf[0], j);
+  server->send(200, "text/plain", "Success");
 }
 
 void handleInfoWiFiSTA()
