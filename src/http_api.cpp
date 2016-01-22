@@ -409,7 +409,7 @@ void handleSSID()
     }
   } else if (server->method() == HTTP_POST) {
     if(!server->hasArg("ssid")) {
-      server->send(400, "text/plain", "No argument given");
+      server->send(400, "text/plain", "No ssid given");
       return;
     }
     ssid_s = server->arg("ssid");
