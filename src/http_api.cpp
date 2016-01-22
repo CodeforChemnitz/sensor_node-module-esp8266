@@ -325,6 +325,9 @@ void handleRestart()
 
 void handleRoot()
 {
+  IPAddress tmp_ip;
+  char tmp_buf[16];
+
   String message = "SensorNode\n\n";
   message += "SSID(AP): SensorNode\n";
   message += "IP(AP): ";
@@ -332,8 +335,17 @@ void handleRoot()
   message += "\n\n";
   message += "SSID(local): ";
   message += "ToDo";
-  message += "\nIP(local): ";
-  message += String(WiFi.localIP());
+
+  if(WiFi.status() == WL_CONNECTED) {
+    message += "\nIP(local): ";
+    tmp_ip = WiFi.localIP();
+    sprintf(tmp_buf, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
+    message += tmp_buf;
+    message += "\nSubnet Mask(local): ";
+    tmp_ip = WiFi.subnetMask();
+    sprintf(tmp_buf, "%d.%d.%d.%d", tmp_ip[0], tmp_ip[1], tmp_ip[2], tmp_ip[3]);
+    message += tmp_buf;
+  }
   message += "\n";
   server->send(200, "text/plain", message);
 }
