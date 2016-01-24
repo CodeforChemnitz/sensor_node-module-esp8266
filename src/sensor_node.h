@@ -34,6 +34,19 @@
 #define SENSOR_NODE_UUID_MAX_LENGTH 64
 #define SENSOR_NODE_KEY_MAX_LENGTH  64
 
+//
+//#define NODE_DEBUG 1
+
+#ifdef NODE_DEBUG
+#define NODE_DEBUG_CMD(...) (__VA_ARGS__)
+#define NODE_DEBUG_PRINT(...) Serial.print(__VA_ARGS__)
+#define NODE_DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
+#else /* defined NODE_DEBUG */
+#define NODE_DEBUG_CMD(...)
+#define NODE_DEBUG_PRINT(...)
+#define NODE_DEBUG_PRINTLN(...)
+#endif /* defined NODE_DEBUG */
+
 template <uint16_t SIZE>
 class DataString : public Print
 {
