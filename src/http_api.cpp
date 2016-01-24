@@ -281,9 +281,6 @@ void handleRegister()
   client->println();
   client->print(buffer);
 
-  String sensor_id = "";
-  String sensor_key = "";
-
   unsigned long start_time = millis();
   i = 0;
   char c;
@@ -309,11 +306,15 @@ void handleRegister()
   }
   client->stop();
   JsonObject& root2 = jsonBuffer.parseObject(buffer);
-  const char* uuid = root2["uuid"];
-  const char* key = root2["key"];
+  char uuid[64];
+  char key[64];
+  strncpy(&uuid[0], root2["uuid"], sizeof(uuid));
+  strncpy(&key[0], root2["key"], sizeof(key));
+
   Serial.println(uuid);
   Serial.println(key);
   // ToDo: RPC call
+  sensor_remote->setCredentials(uuid, key);
 
   server->send(200, "text/plain", "Registred");
 }
