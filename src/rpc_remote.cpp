@@ -56,6 +56,18 @@ uint16_t ArduRPC_SensorNodeRemote::getSensorType(uint8_t sensor_id)
   return value;
 }
 
+uint8_t ArduRPC_SensorNodeRemote::setCredentials(char *uuid, char *key)
+{
+  uint16_t value;
+
+  this->_rpc->reset();
+  this->_rpc->writeRequest_string(uuid);
+  this->_rpc->writeRequest_string(key);
+  this->_rpc->call(this->_handler_id, 0x23);
+
+  return 0;
+}
+
 uint8_t ArduRPC_SensorNodeRemote::setSensor(uint8_t sensor_id, uint16_t type_id, uint8_t *config, uint8_t config_length)
 {
   uint8_t i;
