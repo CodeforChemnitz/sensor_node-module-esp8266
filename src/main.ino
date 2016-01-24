@@ -25,20 +25,21 @@ void setup() {
   uint8_t pin_mode;
   ArduRPCRequest *rpc_request;
 
+  // Initialize the serial port
+  RPC_SERIAL_PORT.begin(RPC_SERIAL_BAUD);
+
+  NODE_DEBUG_PRINTLN("Setup");
   while(digitalRead(0) == HIGH) {
     delay(50);
   }
 
-  pin_mode = digitalRead(2); 
-
   node_mode = NODE_MODE_ACTIVE;
 
+  pin_mode = digitalRead(2);
   if(pin_mode == HIGH) {
+    NODE_DEBUG_PRINTLN("Set mode to config");
     node_mode = NODE_MODE_CONFIG;
   }
-
-  // Initialize the serial port
-  RPC_SERIAL_PORT.begin(RPC_SERIAL_BAUD);
 
   EEPROM.begin(1024);
 
