@@ -22,7 +22,7 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
     this->sensor_uuid[SENSOR_NODE_UUID_MAX_LENGTH] = '\0';
 
     this->_rpc->getParam_string(&this->sensor_key[0], SENSOR_NODE_KEY_MAX_LENGTH);
-    this->sensor_uuid[SENSOR_NODE_KEY_MAX_LENGTH] = '\0';
+    this->sensor_key[SENSOR_NODE_KEY_MAX_LENGTH] = '\0';
 
     this->status = 2;
     this->cache.reset();
