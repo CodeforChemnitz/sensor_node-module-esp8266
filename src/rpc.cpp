@@ -111,34 +111,32 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
 void ArduRPC_SensorNode::submitData()
 {
   uint16_t i;
-  WiFiClient *client;
   char hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH + 1];
 
   if(this->status != 4) {
     return;
   }
 
-  client = connectSensorAPI();
-  if(client == NULL) {
+  if(connectSensorAPI() == false) {
     return;
   }
 
   getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
 
-  client->print("POST /sensors/");
-  client->print(this->sensor_uuid);
-  client->print("Host: ");
-  client->println(hostname);
-  client->println("Connection: close");
-  client->print("X-Sensor-Api-Key: ");
-  client->println(this->sensor_key);
-  client->print("X-Sensor-Version: 1\r\n");
-  client->print("Content-Length: ");
-  client->println(this->cache.length);
-  client->println();
+  client.print("POST /sensors/");
+  client.print(this->sensor_uuid);
+  client.print("Host: ");
+  client.println(hostname);
+  client.println("Connection: close");
+  client.print("X-Sensor-Api-Key: ");
+  client.println(this->sensor_key);
+  client.print("X-Sensor-Version: 1\r\n");
+  client.print("Content-Length: ");
+  client.println(this->cache.length);
+  client.println();
   for(i = 0; i < this->cache.length; i++) {
     Serial.print((char)this->cache.data[i]);
   }
   this->status = 0;
-  client->stop();
+  client.stop();
 }

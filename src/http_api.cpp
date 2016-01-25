@@ -241,7 +241,6 @@ void handlePassword()
 
 void handleRegister()
 {
-  WiFiClient *client;
   char hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH + 1];
   StaticJsonBuffer<200> jsonBuffer;
   char buffer[201];
@@ -255,9 +254,7 @@ void handleRegister()
     return;
   }
 
-  client = connectSensorAPI();
-
-  if (client == NULL) {
+  if (connectSensorAPI() == false) {
     Serial.println("connection failed");
     server->send(500, "text/plain", "Unable to connect to remote server");
     return;
@@ -267,26 +264,41 @@ void handleRegister()
   root["email"] = email;
   root["name"] = name;
 
-  root.printTo(buffer, 200);
+  //root.printTo(buffer, 200);
 
   getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
 
-  client->println("POST /sensors HTTP/1.1");
-  client->print("Host: ");
-  client->println(hostname);
-  client->println("X-Sensor-Version: 1");
-  client->println("Content-Type: application/json");
-  client->print("Content-Length: ");
-  client->println(strlen(buffer));
-  client->println();
-  client->print(buffer);
+  client.println("POST /sensors HTTP/1.1");
+  client.print("Host: ");
+  client.println(hostname);
+  client.println("X-Sensor-Version: 1");
+  client.println("Content-Type: application/json");
+  client.print("Content-Length: ");
+  //client.println(strlen(buffer));
+  client.println(root.measureLength());
+  client.println();
+  root.printTo(client);
+  //client.print(buffer);
 
   unsigned long start_time = millis();
   i = 0;
   char c;
+  int code;
+
+  // ToDo:
+  client.find(' ');
+  code = client.parseInt();
+  NODE_DEBUG_PRINT("http-code ");
+  NODE_DEBUG_PRINTLN(code);
+  if (code != 200) {
+    server->send(400, "text/plain", "Remote error");
+    return;
+  }
+
+  client.find("\r\n\r\n");
   while(1) {
-    if(client->available()) {
-      c = client->read();
+    if(client.available()) {
+      c = client.read();
       buffer[i] = c;
       i++;
       if(c == '}') {
@@ -304,7 +316,7 @@ void handleRegister()
       return;
     }
   }
-  client->stop();
+
   JsonObject& root2 = jsonBuffer.parseObject(buffer);
   char uuid[64];
   char key[64];

@@ -108,7 +108,7 @@ void ICACHE_FLASH_ATTR handleSSID();
 void ICACHE_FLASH_ATTR submitFile(PGM_VOID_P, uint16_t);
 
 extern ESP8266WebServer *server;
-extern WiFiClient *client;
+extern WiFiClient client;
 extern ArduRPC_SensorNodeRemote *sensor_remote;
 
 // EEPROM helper functions
@@ -132,6 +132,6 @@ uint8_t ICACHE_FLASH_ATTR getNodeConfigStatus();
 uint8_t ICACHE_FLASH_ATTR getWiFiSSID(char *ssid, uint8_t max_len);
 void ICACHE_FLASH_ATTR initConfig();
 
-WiFiClient ICACHE_FLASH_ATTR *connectSensorAPI();
+bool ICACHE_FLASH_ATTR connectSensorAPI();
 
 #endif
