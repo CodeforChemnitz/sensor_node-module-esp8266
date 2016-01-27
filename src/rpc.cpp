@@ -1,4 +1,5 @@
 #include "sensor_node.h"
+#include <ESP8266HTTPClient.h>
 
 ArduRPC_SensorNode::ArduRPC_SensorNode(ArduRPC &rpc, char *name) : ArduRPCHandler()
 {
@@ -112,25 +113,51 @@ void ArduRPC_SensorNode::submitData()
 {
   uint16_t i;
   char hostname[NODE_EEPROM_API_HOSTNAME_MAX_LENGTH + 1];
+  uint16_t port;
 
   if(this->status != 4) {
     return;
   }
 
-  if(connectSensorAPI() == false) {
+  if(WiFi.status() != WL_CONNECTED) {
     return;
   }
 
+/*
+  if(connectSensorAPI() == false) {
+    return;
+  }
+*/
   getAPIHostnameOrDefault(&hostname[0], NODE_EEPROM_API_HOSTNAME_MAX_LENGTH);
+  port = getAPIPortOrDefault();
 
+  HTTPClient http;
+
+  String path;
+  path.reserve(64);
+  path = "/sensors/";
+  path += this->sensor_uuid;
+
+  http.begin(hostname, port, path);
+  http.addHeader("X-Sensor-Api-Key", this->sensor_key);
+  http.addHeader("X-Sensor-Version", "1");
+  int code;
+  code = http.POST(this->cache.data, this->cache.length);
+  NODE_DEBUG_PRINT("Code ");
+  NODE_DEBUG_PRINTLN(code);
+
+  // ToDo: validate code
+  this->status = 0;
+
+/*
   client.print("POST /sensors/");
-  client.print(this->sensor_uuid);
+  client.println(this->sensor_uuid);
   client.print("Host: ");
   client.println(hostname);
   client.println("Connection: close");
   client.print("X-Sensor-Api-Key: ");
   client.println(this->sensor_key);
-  client.print("X-Sensor-Version: 1\r\n");
+  client.println("X-Sensor-Version: 1");
   client.print("Content-Length: ");
   client.println(this->cache.length);
   client.println();
@@ -139,4 +166,5 @@ void ArduRPC_SensorNode::submitData()
   }
   this->status = 0;
   client.stop();
+*/
 }
