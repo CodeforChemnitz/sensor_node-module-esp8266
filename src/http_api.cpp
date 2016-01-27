@@ -281,7 +281,6 @@ void handleRegister()
   //client.print(buffer);
 
   unsigned long start_time = millis();
-  i = 0;
   char c;
   int code;
 
@@ -295,6 +294,7 @@ void handleRegister()
     return;
   }
 
+  i = 0;
   client.find("\r\n\r\n");
   while(1) {
     if(client.available()) {
@@ -304,6 +304,10 @@ void handleRegister()
       if(c == '}') {
         break;
       }
+      if(i >= sizeof(buffer) - 2) {
+        server->send(400, "text/plain", "Memory Limit");
+        return;
+      }
     } else {
       delay(100);
     }
@@ -311,20 +315,22 @@ void handleRegister()
       server->send(400, "text/plain", "API Timeout");
       return;
     }
-    if(i >= 200) {
-      server->send(400, "text/plain", "Memory Limit");
-      return;
-    }
   }
+  buffer[i] = '\0';
+  Serial.println(buffer);
 
   JsonObject& root2 = jsonBuffer.parseObject(buffer);
-  char uuid[64];
+
+  const char *ptr_uuid = root2["uuid"];
+  const char *ptr_key = root2["key"];
+  char uuid[64] = {0};
   char key[64];
-  strncpy(&uuid[0], root2["uuid"], sizeof(uuid));
-  strncpy(&key[0], root2["key"], sizeof(key));
+  strncpy(&uuid[0], ptr_uuid, sizeof(uuid));
+  strncpy(&key[0], ptr_key, sizeof(key));
 
   Serial.println(uuid);
   Serial.println(key);
+
   // ToDo: RPC call
   sensor_remote->setCredentials(uuid, key);
 
