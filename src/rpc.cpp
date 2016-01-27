@@ -14,7 +14,7 @@ uint8_t ArduRPC_SensorNode::call(uint8_t cmd_id)
   if (cmd_id == 0x10) {
     /* start() */
     if(WiFi.status() != WL_CONNECTED) {
-      connectWiFiClient(1);
+      connectWiFiClient(0);
     }
 
     // get Params UUID and API KEY
