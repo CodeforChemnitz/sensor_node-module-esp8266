@@ -320,8 +320,12 @@ void handleRegister()
   Serial.println(buffer);
 
   JsonObject& root2 = jsonBuffer.parseObject(buffer);
+  if(!root2.success() || !root2.containsKey("id") || !root2.containsKey("key")) {
+    server->send(400, "text/plain", "Error parsing registration data");
+    return;
+  }
 
-  const char *ptr_uuid = root2["uuid"];
+  const char *ptr_uuid = root2["id"];
   const char *ptr_key = root2["key"];
   char uuid[64] = {0};
   char key[64];
