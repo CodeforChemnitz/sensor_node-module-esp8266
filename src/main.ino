@@ -19,37 +19,44 @@ ArduRPC_SensorNodeRemote *sensor_remote;
 ESP8266WebServer *server;
 
 void setup() {
-  pinMode(16, INPUT);
-  pinMode(0, INPUT);
-  pinMode(2, INPUT);
   uint8_t pin_mode;
   ArduRPCRequest *rpc_request;
 
   // Initialize the serial port
   RPC_SERIAL_PORT.begin(RPC_SERIAL_BAUD);
 
-  NODE_DEBUG_PRINTLN("Setup");
-  while(digitalRead(0) == HIGH) {
-    delay(50);
-  }
+  String mode;
+  mode.reserve(10);
 
   node_mode = NODE_MODE_ACTIVE;
 
-  pin_mode = digitalRead(2);
-  if(pin_mode == HIGH) {
-    NODE_DEBUG_PRINTLN("Set mode to config");
-    node_mode = NODE_MODE_CONFIG;
+  NODE_DEBUG_PRINTLN("Setup");
+  while(1) {
+    Serial.println("+READY");
+    if(Serial.find("+MODE ")) {
+      mode = Serial.readStringUntil('\r');
+      if(mode == "cfg") {
+        node_mode = NODE_MODE_CONFIG;
+        break;
+      } else if(mode == "run") {
+        node_mode = NODE_MODE_ACTIVE;
+        break;
+      }
+    }
   }
+  Serial.println("+OK");
 
   EEPROM.begin(1024);
 
   if(node_mode == NODE_MODE_ACTIVE) {
+    NODE_DEBUG_PRINTLN("Mode active");
     WiFi.mode(WIFI_STA);
     //connectWiFiClient(20);
     rpc = new ArduRPC(RPC_NUM_HANDLERS, RPC_NUM_FUNCTIONS);
     rpc_serial = new ArduRPC_Serial(RPC_SERIAL_PORT, *rpc);
     rpc_sensor_node = new ArduRPC_SensorNode(*rpc, "wifi");
   } else if (node_mode == NODE_MODE_CONFIG) {
+    NODE_DEBUG_PRINTLN("Mode config");
     server = new ESP8266WebServer(80);
     rpc_request = new ArduRPCRequest();
     new ArduRPCRequest_Serial(*rpc_request, RPC_SERIAL_PORT);
