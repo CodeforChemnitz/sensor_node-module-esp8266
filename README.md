@@ -1,7 +1,11 @@
-Proof of Concept
-================
+WiFi Module for SensorNode
+==========================
 
+[![Build Status](https://travis-ci.org/CodeforChemnitz/sensor_node-module-esp8266.svg?branch=master)](https://travis-ci.org/CodeforChemnitz/sensor_node-module-esp8266)
 
+Firmware for the WiFi Module for the SensorNode.
+
+For more information have a look at [Code for Chemnitz: SensorNode project](http://codeforchemnitz.de/projects/sensor/)
 
 Commands
 ========
